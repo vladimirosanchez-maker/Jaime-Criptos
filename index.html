@@ -112,7 +112,7 @@ font-size:13px;
 <div id="horas" class="info"></div>
 
 <button onclick="actualizarBase()">
-Actualizar Base Ahora
+Actualizar basejaime Ahora
 </button>
 
 <div class="ranking">
@@ -132,7 +132,7 @@ Actualizar Base Ahora
 <tr>
 <th>Activo</th>
 <th>Actual</th>
-<th>Base</th>
+<th>basejaime</th>
 <th>USD</th>
 <th>%</th>
 <th>Tendencia</th>
@@ -223,16 +223,16 @@ return "⛔ Bajista Fuerte";
 }
 
 async function cargar(){
-let base=
+let basejaime=
 JSON.parse(
-localStorage.getItem("base")
+localStorage.getItem("basejaime")
 );
 
-let baseHora=
-localStorage.getItem("baseHora");
-if(!base){
+let basehorajaime=
+localStorage.getItem("basehorajaime");
+if(!basejaime){
 
-base={};
+basejaime={};
 
 for(let ticker of activos){
 
@@ -244,21 +244,21 @@ await fetch(
 const d=
 await r.json();
 
-base[ticker]=
+basejaime[ticker]=
 parseFloat(d.price);
 
 }
 
 localStorage.setItem(
-"base",
-JSON.stringify(base)
+"basejaime",
+JSON.stringify(basejaime)
 );
 
-baseHora=Date.now();
+basehorajaime=Date.now();
 
 localStorage.setItem(
-"baseHora",
-baseHora
+"basehorajaime",
+basehorajaime
 );
 
 }
@@ -270,7 +270,7 @@ if(!tablaCreada){
 for(const ticker of activos){
 
 ultimoPrecio[ticker]=
-base[ticker];
+basejaime[ticker];
 
 tabla.innerHTML+=`
 
@@ -282,11 +282,11 @@ ${ticker.replace("USDT","")}
 
 
 <td id="actual_${ticker}">
-${formato(base[ticker])}
+${formato(basejaime[ticker])}
 </td>
 
 <td>
-${formato(base[ticker])}
+${formato(basejaime[ticker])}
 </td>
 
 <td id="usd_${ticker}">
@@ -320,9 +320,9 @@ actualizarHoras();
 }
 async function actualizarDatos(){
 
-const base=
+const basejaime=
 JSON.parse(
-localStorage.getItem("base")
+localStorage.getItem("basejaime")
 );
 
 let ranking=[];
@@ -341,7 +341,7 @@ const actual=
 parseFloat(d.price);
 
 const valorBase=
-base[ticker] || actual;
+basejaime[ticker] || actual;
 
 const usd=
 actual-valorBase;
@@ -405,18 +405,18 @@ ${r.fuerza}
 
 function actualizarHoras(){
 
-let baseHora=
+let basehorajaime=
 localStorage.getItem(
-"baseHora"
+"basehorajaime"
 );
 
-if(!baseHora){
+if(!basehorajaime){
 return;
 }
 
 let proxima=
 new Date(
-parseInt(baseHora)
+parseInt(basehorajaime)
 +
 (4*60*60*1000)
 );
@@ -442,14 +442,14 @@ document.getElementById(
 ).innerHTML=
 
 `
-🕒 Hora Base:
+🕒 Hora basejaime:
 ${new Date(
-parseInt(baseHora)
+parseInt(basehorajaime)
 ).toLocaleTimeString("es-CO")}
 
 <br>
 
-⏰ Próxima Base:
+⏰ Próxima basejaime:
 ${proxima.toLocaleTimeString("es-CO")}
 
 <br>
@@ -463,11 +463,11 @@ ${horas}h ${minutos}m
 function actualizarBase(){
 
 localStorage.removeItem(
-"base"
+"basejaime"
 );
 
 localStorage.removeItem(
-"baseHora"
+"basehorajaime"
 );
 
 location.reload();
