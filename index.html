@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Crypto Jaime Dashboard</title>
+<title>Crypto Dashboard V5</title>
 
 <style>
 
@@ -51,16 +51,18 @@ font-size:11px;
 table-layout:fixed;
 }
 
+
 th{
-padding:4px 1px;
-font-size:10px;
+padding:6px 2px;
+font-size:11px;
+text-align:center;
 }
 
 td{
-padding:4px 1px;
+padding:6px 2px;
 font-size:10px;
-word-wrap:break-word;
-overflow:hidden;
+text-align:center;
+vertical-align:top;
 }
 
 .verde{
@@ -100,14 +102,19 @@ font-size:22px;
 .info{
 font-size:13px;
 }
-
+small{
+display:block;
+margin-top:2px;
+font-size:7px;
+color:#888;
+}
 </style>
 
 </head>
 
 <body>
 
-<h1>Crypto Jaime Dashboard</h1>
+<h1>Crypto Dashboard V5</h1>
 
 <div id="horas" class="info"></div>
 
@@ -143,7 +150,29 @@ Actualizar base1 Ahora
 <tbody id="tabla"></tbody>
 
 </table>
+<h2>📉 Mínimos Binance Futures</h2>
 
+<table>
+
+<thead>
+
+<tr>
+
+<th>Activo</th>
+<th>H1</th>
+<th>H4</th>
+<th>D</th>
+<th>S</th>
+<th>M</th>
+
+
+</tr>
+
+</thead>
+
+<tbody id="tablaMinimos"></tbody>
+
+</table>
 <script>
 
 
@@ -315,6 +344,8 @@ tablaCreada=true;
 
 actualizarDatos();
 
+cargarMinimos();
+
 actualizarHoras();
 
 }
@@ -340,6 +371,11 @@ await r.json();
 const actual=
 parseFloat(d.price);
 
+document.getElementById(
+"actual_"+ticker
+).innerHTML=
+formato(actual);
+
 const valorBase=
 base1[ticker] || actual;
 
@@ -356,10 +392,7 @@ document.getElementById(
 ${usd>0?'+':''}${formato(usd)}
 </span>`;
 
-document.getElementById(
-"actual_"+ticker
-).innerHTML=
-formato(actual);
+
 
 document.getElementById(
 "pct_"+ticker
@@ -403,6 +436,125 @@ ${r.fuerza}
 
 }
 
+async function obtenerMinimo(
+ticker,
+intervalo,
+limite
+){
+
+const r=
+await fetch(
+`https://fapi.binance.com/fapi/v1/klines?symbol=${ticker}&interval=${intervalo}&limit=${limite}`
+);
+
+const datos=
+await r.json();
+let fechaMinimo="";
+let minimo=
+Number.MAX_VALUE;
+
+for(const vela of datos){
+
+const low=
+parseFloat(vela[3]);
+
+if(low<minimo){
+
+minimo=low;
+
+fechaMinimo=
+new Date(vela[0])
+.toLocaleDateString("es-CO")
+
+}
+
+}
+
+return {
+precio:minimo,
+fecha:fechaMinimo
+};
+
+}
+async function cargarMinimos(){
+
+let html="";
+
+for(const ticker of activos){
+    
+ 
+
+
+    
+    
+
+const h1 = await obtenerMinimo(ticker,"1h",24);
+const h4 = await obtenerMinimo(ticker,"4h",30);
+const d = await obtenerMinimo(ticker,"1d",30);
+const s = await obtenerMinimo(ticker,"1w",52);
+const m = await obtenerMinimo(ticker,"1M",12);
+
+
+
+html += `
+<tr>
+
+
+<td>
+<b>${ticker.replace("USDT","")}</b>
+</td>
+
+<td>
+<span style="font-size:9px;color:#ffd700;font-weight:bold;">
+${formato(h1.precio)}
+</span>
+<br>
+<small style="font-size:7px;color:#999;">
+${h1.fecha}
+</small>
+</td>
+
+<td>
+<span style="font-size:9px;color:#ffd700;font-weight:bold;">
+${formato(h4.precio)}
+</span>
+<br>
+<small>${h4.fecha}</small>
+</td>
+
+<td>
+<span style="font-size:9px;color:#ffd700;font-weight:bold;">
+${formato(d.precio)}
+</span>
+<br>
+<small>${d.fecha}</small>
+</td>
+
+<td>
+<span style="font-size:9px;color:#ffd700;font-weight:bold;">
+${formato(s.precio)}
+</span>
+<br>
+<small>${s.fecha}</small>
+</td>
+
+<td>
+<span style="font-size:9px;color:#ffd700;font-weight:bold;">
+${formato(m.precio)}
+</span>
+<br>
+<small>${m.fecha}</small>
+</td>
+</tr>
+`;
+
+}
+
+document.getElementById(
+"tablaMinimos"
+).innerHTML=html;
+
+}
 function actualizarHoras(){
 
 let basehora1=
@@ -491,4 +643,3 @@ actualizarHoras,
 </body>
 
 </html>
-
